@@ -1,0 +1,138 @@
+package myQQ;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+import javax.swing.*;
+
+
+public class LoginQQ extends JFrame implements ActionListener{
+
+	JButton jb1;
+	JButton jb2;
+	JButton jb3;
+	JLabel jl1;
+	JLabel jl2;
+	JLabel jl3;
+	JLabel jl4;
+	JTextField jf1;
+	JPasswordField jp1;
+	JComboBox jc1;
+	JCheckBox jf2;
+	Socket clientsocket;
+		public LoginQQ()
+		{
+			jb1=new JButton("Servier");
+			jb2=new JButton("Client");
+			jb3=new JButton("Sent");
+			jl1=new JLabel("用户名");
+			jl2=new JLabel("密码");
+			jl3=new JLabel("权限");
+			jl4=new JLabel("登入页面");
+			jl4.setFont(new Font("楷体",Font.BOLD,36));
+			jf1=new JTextField(10);
+			jf2=new JCheckBox("好的");
+			jp1=new JPasswordField(10);
+			String[] st = new String[2];
+			st[0]=new String("管理员");
+			st[1]=new String("用户");
+			jc1=new JComboBox(st);
+			jc1.addItem(new String("VIP用户"));
+			
+			JPanel jpl1 = new JPanel();
+			JPanel jpl2 = new JPanel();
+			JPanel jpl3 = new JPanel();
+			JPanel jpl4 = new JPanel();
+			
+			
+			jpl1.setLayout(new GridLayout(3,2,5,5));
+			jpl1.add(jl1);
+			jpl1.add(jf1);
+			jpl1.add(jl2);
+			jpl1.add(jp1);
+			jpl1.add(jl3);
+			jpl1.add(jc1);
+			
+			jpl3.add(jpl1);
+			jpl4.add(jl4);
+			
+			jpl2.add(jb1);
+			jpl2.add(jb2);
+			jpl2.add(jb3);
+			
+			Container container = this.getContentPane();
+			container.setLayout(new BorderLayout());
+			container.add(jpl3,BorderLayout.CENTER);
+			container.add(jpl4,BorderLayout.NORTH);
+			container.add(jpl2,BorderLayout.SOUTH);
+			
+			jb1.addActionListener(this);
+			jb2.addActionListener(this);
+			
+/*			jb1.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					// TODO Auto-generated method stub
+					System.out.println(jf1.getText());
+					System.out.println(new String(jp1.getPassword()));
+					System.out.println(jc1.getSelectedItem());
+				}
+				
+			});
+		}*/
+
+		}
+public static void main(String[] args) 
+{
+	LoginQQ lf= new LoginQQ();
+	lf.setSize(400,300);
+	Toolkit kit = Toolkit.getDefaultToolkit();
+	Dimension screenSize = kit.getScreenSize();
+	int screenWidth = screenSize.width;
+	int screenHeight = screenSize.height;
+	lf.setLocation(screenWidth/2-200,screenHeight/2-150);
+	lf.setVisible(true);
+}
+
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			if(arg0.getSource()==jb1)
+			{
+				new Serverlisten(this).start();
+			}else if(arg0.getSource()==jb2)
+			{
+				try {
+					clientsocket=new Socket("127.0.0.1",10011);
+				
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}else if(arg0.getSource()==jb3)
+			{
+				OutputStream os;
+				try {
+					os = clientsocket.getOutputStream();
+					InputStream is=clientsocket.getInputStream();
+				
+				    os.write("hello1".getBytes());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
