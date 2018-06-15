@@ -1,0 +1,120 @@
+/*
+ * 聊天界面
+ * 客户端要处于读取状态，因此把他做成一个线程，故而包含客户端输出流（向服务端输出内容）
+ */
+package myQQ;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.Date;
+
+import javax.swing.*;
+
+import com.qq.common.Message;
+import com.qq.client.model.*;
+
+public class FrameQQ extends JFrame implements ActionListener,Runnable{
+	JButton jb1;
+	JButton jb2;
+	JTextArea jt1;
+	JTextField jt2;
+	JLabel jl1;
+	String meID;
+	String friendID;
+	
+	public FrameQQ(String me,String friend)
+	{
+		this.meID = me;
+		this.friendID = friend;
+		jb1 = new JButton("清除");
+		jb2 = new JButton("发送");
+		jt1 = new JTextArea(); 
+		jt2 = new JTextField(15);
+		jl1 = new JLabel("伪のQQ");
+		
+		JPanel jpl1 = new JPanel();
+		JPanel jpl2 = new JPanel();
+		JPanel jpl3 = new JPanel();
+		
+		jpl1.add(jl1);
+		jpl2.setLayout(new GridLayout(3,1,5,5));
+		jpl2.add(jt1);
+		jpl2.add(jt2);
+		jpl3.add(jb1);
+		jpl3.add(jb2);
+		jb2.addActionListener(this);
+		
+		Container container = this.getContentPane();
+		container.setLayout(new BorderLayout());
+		container.add(jpl2,BorderLayout.CENTER);
+		container.add(jpl1,BorderLayout.NORTH);
+		container.add(jpl3,BorderLayout.SOUTH);
+		
+		this.setSize(400,300);
+		this.setTitle(me+"正在和"+friend+"聊天");
+		Toolkit kit = Toolkit.getDefaultToolkit();
+		Dimension screenSize = kit.getScreenSize();
+		int screenWidth = screenSize.width;
+		int screenHeight = screenSize.height;
+		this.setLocation(screenWidth/11,screenHeight/2-150);
+		this.setVisible(true);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		if(arg0.getSource()==jb2)
+		{
+			Message m = new Message();
+			m.setSender(this.meID);
+			m.setGetter(friendID);
+			m.setCon(jt2.getText());
+			m.setSendtime(new Date().toString());
+			//发送给服务器
+			ObjectOutputStream oos;
+			try {
+				oos = new ObjectOutputStream(myQQclient.s.getOutputStream());
+				oos.writeObject(m);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		while(true)
+		{
+			try {
+				//如果读取不到则等待
+				ObjectInputStream ois = new ObjectInputStream(myQQclient.s.getInputStream());
+				Message m = (Message)ois.readObject();
+				//System.out.println("紧急测试"+m.getSender()+"对"+m.getGetter()+"说"+m.getCon());
+				String info = m.getSendtime()+" "+m.getSender()+"对"+m.getGetter()+"说"+m.getCon()+"\r\n";
+				//写入jt1
+				this.jt1.append(info);
+				
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**public static void main(String[] args) {
+		FrameQQ lf= new FrameQQ();
+		lf.setSize(800,600);
+		Toolkit kit = Toolkit.getDefaultToolkit();
+		Dimension screenSize = kit.getScreenSize();
+		int screenWidth = screenSize.width;
+		int screenHeight = screenSize.height;
+		lf.setLocation(screenWidth/2-400,screenHeight/2-300);
+		lf.setVisible(true);
+
+	}*/
+
+}
