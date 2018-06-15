@@ -1,0 +1,96 @@
+package myQQ;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+
+public class QQFriendList extends JFrame implements ActionListener,MouseListener{
+	JLabel jl;
+	String me1;
+	public QQFriendList(String meID)
+	{
+		this.me1 = meID;
+		jl = new JLabel("我的好友");
+		JPanel jpl1 = new JPanel();
+		JPanel jpl2 = new JPanel();
+		jpl2.setLayout(new GridLayout(10,1,5,5));
+		JLabel [] jb = new JLabel[5];
+		for(int i=0;i<jb.length;i++)
+		{
+			jb[i] = new JLabel(i+1+" ",new ImageIcon("image/2.jpg"),JLabel.LEFT);
+			jb[i].addMouseListener(this);
+			jpl2.add(jb[i]);
+		}
+		JScrollPane jspl = new JScrollPane(jpl2);
+		Container container = this.getContentPane();
+		container.setLayout(new BorderLayout());
+		container.add(jspl,BorderLayout.CENTER);
+		container.add(jpl1,BorderLayout.NORTH);
+		
+		this.setSize(300,600);
+		this.setTitle(meID);
+		Toolkit kit = Toolkit.getDefaultToolkit();
+		Dimension screenSize = kit.getScreenSize();
+		int screenWidth = screenSize.width;
+		int screenHeight = screenSize.height;
+		this.setLocation(screenWidth*2/3,screenHeight/2-300);
+		this.setVisible(true);
+	}
+
+	/*public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		QQFriendList list= new QQFriendList();
+		list.setSize(300,600);
+		Toolkit kit = Toolkit.getDefaultToolkit();
+		Dimension screenSize = kit.getScreenSize();
+		int screenWidth = screenSize.width;
+		int screenHeight = screenSize.height;
+		list.setLocation(screenWidth*2/3,screenHeight/2-300);
+		list.setVisible(true);
+	}*/
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		if(arg0.getClickCount()==2)
+		{
+			String friendnum = ((JLabel)arg0.getSource()).getText();
+			FrameQQ frameqq = new FrameQQ(this.me1,friendnum);
+			Thread t = new Thread(frameqq);
+			t.start();
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		JLabel jl = (JLabel)arg0.getSource();
+		jl.setForeground(Color.gray);
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		JLabel jl = (JLabel)arg0.getSource();
+		jl.setForeground(Color.black);
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}
