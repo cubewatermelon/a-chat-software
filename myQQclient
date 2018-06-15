@@ -1,0 +1,48 @@
+/*
+ * 这是登入验证程序，本程序读取输入的密码发送给服务器验证
+ * 聊天内容的输出也要用本程序socket
+ */
+package com.qq.client.model;
+
+import java.io.*;
+import java.net.*;
+
+import com.qq.common.*;
+
+public class myQQclient {
+	
+	public static Socket s;
+	public boolean sendLoginInfoToServer(Object o)
+	{
+		boolean b = false;
+		try {
+			System.out.print("开始连接9999端口，输入用户名、密码");
+			s = new Socket("127.0.0.1",9999);
+			ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+			oos.writeObject(o);
+			//将对象u发送到服务器（myQQServer）进行验证，而后作为相对于客户端的输入流回来结果
+			ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
+			Message ms;
+			ms = (Message)ois.readObject();
+			if(ms.getMesType().equals("1"))
+				{
+					b=true;
+				}else
+				{
+					s.close();
+				}
+		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			
+		}
+		return b;
+	}
+
+}
