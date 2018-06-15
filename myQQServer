@@ -1,0 +1,57 @@
+/*
+ * QQ服务器，监听等待连接
+ */
+package com.qq.server.model;
+
+import java.io.*;
+import java.net.*;
+
+import com.qq.common.Message;
+import com.qq.common.User;
+
+
+public class myQQServer {
+	
+	public myQQServer()
+	{
+		try {
+			System.out.println("我是服务器,正在监听9999端口");
+			ServerSocket ss = new ServerSocket(9999);
+			//保证登入界面不会因输错密码而阻塞
+			while(true)
+			{
+				Socket s = ss.accept();
+				ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
+				User u;
+				u = (User)ois.readObject();
+				System.out.print("服务器接收到"+"用户名：" +u.getUserID()+"密码："+u.getPassword());
+				Message m = new Message();
+				ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+				if(u.getPassword().equals("123456"))
+					{
+						m.setMesType("1");		
+						oos.writeObject(m);
+						//单开一个线程，使该线程与客户端保持通信
+						//实例化ServerClientThread
+						ServerClientThread scct = new ServerClientThread(s);
+						ManageClientThread.addClientThread(u.getUserID(),scct);
+						//启动与该客户端通信的线程
+						scct.start();
+					}else
+					{
+						m.setMesType("2");
+						oos.writeObject(m);
+						s.close();
+					}
+										
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+}
