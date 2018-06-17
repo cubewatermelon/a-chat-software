@@ -1,0 +1,75 @@
+--Clientltener
+package myQQ;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+
+public class Clientltener extends Thread {
+	public Socket s;
+	public LoginQQ lf;
+	Clientltener(Socket s,LoginQQ lf)
+	{
+		this.s = s;
+	}
+	public void run()
+	{
+		try {
+			//OutputStream os=s.getOutputStream();
+		InputStream is=s.getInputStream();
+					
+		byte[] bt=new byte[50];
+		is.read(bt);
+		lf.jf1.setText(new String(bt));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/*public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}*/
+
+}
+
+
+--Serverlisten
+package myQQ;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Serverlisten extends Thread{
+	
+	public LoginQQ lf;
+	
+	Serverlisten(LoginQQ lf)
+	{
+		this.lf = lf;
+	}
+	public void run()
+	{
+		ServerSocket ss;
+		try {
+			ss = new ServerSocket(10011);
+		while(true)
+		{
+			Socket s = ss.accept();
+			new Clientltener(s,lf).start();
+		}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/*public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}*/
+
+}
