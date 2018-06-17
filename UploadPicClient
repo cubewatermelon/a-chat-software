@@ -1,0 +1,79 @@
+package tools;  
+  
+import java.io.BufferedInputStream;  
+import java.io.BufferedOutputStream;  
+import java.io.BufferedReader;  
+import java.io.FileInputStream;  
+import java.io.IOException;  
+import java.io.InputStreamReader;  
+import java.net.Socket;  
+import java.net.UnknownHostException;  
+  
+import javax.swing.JFileChooser;  
+import javax.swing.JOptionPane;  
+  
+/** 
+ * @author<a href="mailto:794530831@qq.com">dragon_Dai</a> 
+ * @version 2017-8-13 下午11:48:46 
+ * @filename UploadPicClient.java 
+ *  
+ * 客户端需求：把一个图片文件发送到服务端并读取回馈信息。 
+ *       要求判断文件是否存在及格式是否为jpg或gif并要求文件小于2M。 
+ * 服务端需求：接收客户端发送过来的图片数据。进行存储后，回馈一个 上传成功字样。 
+ *    支持多用户的并发访问(这里需要多线程)。 
+ */  
+public class UploadPicClient {  
+    public static void main(String[] args) {  
+        //先让用户选择文件        
+        JFileChooser jfc=new JFileChooser();  
+        int res = jfc.showOpenDialog(null); 
+        //选中了文件才进行通讯  
+        if(res==JFileChooser.APPROVE_OPTION){  
+            //卫条件  
+            if(!jfc.getSelectedFile().getName().endsWith(".jpg")   
+                    && !jfc.getSelectedFile().getName().endsWith(".gif")){  
+                JOptionPane.showMessageDialog(null, "文件格式选择错误,只能选择.jpg或者.gif文件");  
+                return;  
+            }  
+            if(jfc.getSelectedFile().length()>1024*1024*2){  
+                JOptionPane.showMessageDialog(null, "文件不能大于2M");  
+                return;  
+            }  
+            try {  
+                Socket s=new Socket("127.0.0.1",10007);  
+                  
+                //源 file  
+                BufferedInputStream bis=new BufferedInputStream(new FileInputStream(jfc.getSelectedFile()));  
+                //目的 Socket  
+                BufferedOutputStream bos=new BufferedOutputStream(s.getOutputStream());  
+                byte bs[]=new byte[512];  
+                int len=-1;  
+                while((len=bis.read(bs))!=-1){  
+                    bos.write(bs, 0, len);  
+                }  
+                bos.flush();        //缓存流需要刷缓存  
+                  
+                s.shutdownOutput();     //提示服务器,传输数据完毕  
+                  
+                //接收服务器返回的提示信息  
+                BufferedReader br=new BufferedReader(new InputStreamReader(s.getInputStream()));  
+                String str=null;  
+                while((str=br.readLine())!=null){  
+                    System.out.println(str);  
+                }  
+                  
+                //关流  
+                bis.close();  
+                bos.close();  
+                br.close();  
+                s.close();  
+                  
+            } catch (UnknownHostException e) {  
+                e.printStackTrace();  
+            } catch (IOException e) {  
+                e.printStackTrace();  
+            }  
+              
+        }  
+    }  
+}
