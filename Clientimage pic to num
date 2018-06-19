@@ -1,0 +1,51 @@
+package model;
+
+import java.net.*;  
+import java.io.*;  
+import java.awt.*;  
+import java.awt.image.BufferedImage;  
+  
+import javax.imageio.*;  
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+
+import common.Messagetype;
+import common.message;
+import tools.ManageClientConServerThread;  
+
+public class Clientimage implements java.io.Serializable{
+	Image newimg;  
+    static BufferedImage bimg;  
+    private Socket s;
+    public Clientimage(Socket s)
+    {
+		message m=new message();
+		m.setMesType(Messagetype.message_image);
+		JFileChooser fd = new JFileChooser();  
+		fd.showOpenDialog(null);  
+		File f = fd.getSelectedFile();
+    	this.s = s;
+        try  
+        {
+	           //m.setF(ImageIO.read(f)); 
+	           BufferedImage image = ImageIO.read(f);
+	           ByteArrayOutputStream out = new ByteArrayOutputStream();  
+	           boolean flag = ImageIO.write(image, "jpg", out);  
+	           byte[] b = out.toByteArray();
+	           int length=b.length;  
+               while(length!=0)
+               {  
+            	   System.out.println(b[length-1]); 
+            	   length--;
+               }
+	           m.setNum(b);
+	           ObjectOutputStream oos=new ObjectOutputStream(s.getOutputStream());
+			   oos.writeObject(m);  
+	           System.out.println("Image sent!!!!");   
+	        }catch(IOException e)  
+	        {  
+	           e.printStackTrace();  
+	        }
+	    } 
+
+}
