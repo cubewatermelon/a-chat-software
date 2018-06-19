@@ -1,0 +1,103 @@
+package tools;
+
+
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.*;
+
+import javax.imageio.ImageIO;
+
+import com.qq.client.view.chat;
+import com.qq.client.view.friend;
+
+import common.Messagetype;
+import common.message;
+
+
+public class ClientConServerThread extends Thread{
+
+	
+	
+	public Socket getS() {
+		return s;
+	}
+	public void setS(Socket s) {
+		this.s = s;
+	}
+	private Socket s;
+	public  ClientConServerThread(Socket s) {
+		
+		this.s=s;
+	}
+	public void run(){
+		
+		while(true) {
+			try {
+				ObjectInputStream ois=new ObjectInputStream(s.getInputStream());
+				message m=(message)ois.readObject();
+				
+				//System.out.println("从服务器读取到消息"+m.getSender()+" 给 "+m.getGetter()+" 内容： "+m.getCon());
+			if(m.getMesType().equals(Messagetype.message_common)) {
+				
+				//把从服务器获得的消息显示到该显示的聊天界面
+				chat qqchat=Managechat.getchat(m.getGetter()+" "+m.getSender());
+			//显示
+			qqchat.showmessage(m);
+			//保存聊天记录到本地
+			FileWriter f = new FileWriter("I:\\学习\\java\\record.txt",true);
+			String str = "在 "+m.getTime()+"\r\n"+m.getSender()+" 说 ："+m.getCon()+"\r\n";
+			f.write(str);
+			f.close();
+		
+			}else if(m.getMesType().equals(Messagetype.message_image))
+			{
+				   System.out.println("接受客户端收到");
+				 byte[]b = new byte[20000];
+				 int count = 0;
+				   System.out.println("A");
+                 ByteArrayOutputStream bout = new ByteArrayOutputStream();  
+                   System.out.println("B");
+                   System.out.println(ois.read(m.getNum()));
+                   int length=b.length;  
+                   while(length!=0)
+                   {  
+                	   System.out.println(b[length-1]); 
+                	   length--;
+                   }
+                 length = 0;  
+                 while((length=ois.read(m.getNum()))!=-1){ 
+                     bout.write(b, 0, length);
+                   System.out.println("E");
+                 }
+                   System.out.println("C");
+                 ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());  
+                   System.out.println("D");
+                 BufferedImage image = ImageIO.read(bin); 
+                 System.out.println("逆数据化完成");
+                 //repaint();  
+                 ImageIO.write(image, "jpg", new File("F:\\test.jpg"));   
+				 //ImageIO.write(m.getF(),"jpg",new File("F:\\test.jpg"));   
+                 System.out.println("Image received!!!!");
+			}
+			else if(m.getMesType().equals(Messagetype.message_return_onlineFriend)) {
+				
+				System.out.println("客户端接收到"+m.getCon());
+				String con=m.getCon();
+				String friends[]=con.split(" ");
+				String getter=m.getGetter();
+				//修改相应的好友列表
+				
+				friend friendlist=ManageFriend.getfriend(getter);
+				//更新在线好友
+				if(friendlist!= null) {
+				friendlist.updatefriend(m);
+				}
+			
+			}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+}
